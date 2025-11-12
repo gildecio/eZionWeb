@@ -1,0 +1,17 @@
+@page "{id:int}"
+@model eZionWeb.Estoque.Pages.Produtos.DeleteModel
+@{
+    ViewData["Title"] = "Excluir Produto";
+}
+
+<div class="container">
+    <h2 class="mb-3 text-danger"><i class="bi bi-trash me-2"></i>Excluir Produto</h2>
+    <div class="alert alert-warning">
+        Tem certeza que deseja excluir o produto <strong>@Model.Item?.Nome</strong>? Esta ação não pode ser desfeita.
+    </div>
+    <form method="post">
+        <input type="hidden" asp-for="Item!.Id" />
+        <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Excluir</button>
+        <a class="btn btn-secondary ms-1" asp-page="Index">Cancelar</a>
+    </form>
+</div>

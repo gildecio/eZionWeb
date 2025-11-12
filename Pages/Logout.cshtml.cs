@@ -12,13 +12,13 @@ namespace eZionWeb.Pages
         public async Task<IActionResult> OnPostAsync()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToPage("/Login");
+            return RedirectToPage("/Pages/Login");
         }
 
         public async Task<IActionResult> OnGet()
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToPage("/Login");
+            return RedirectToPage("/Pages/Login");
         }
     }
 }

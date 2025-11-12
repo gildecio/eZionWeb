@@ -32,7 +32,7 @@ namespace eZionWeb.Pages
 
                 if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                     return Redirect(returnUrl);
-                return RedirectToPage("/Index");
+                return RedirectToPage("/Pages/Index");
             }
 
             ModelState.AddModelError(string.Empty, "Credenciais inválidas");

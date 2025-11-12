@@ -1,0 +1,26 @@
+@page "{id:int}"
+@model eZionWeb.Estoque.Pages.Produtos.EditModel
+@{
+    ViewData["Title"] = "Editar Produto";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-pencil me-2"></i>Editar Produto</h2>
+    <form method="post">
+        <input type="hidden" asp-for="Item.Id" />
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.Nome"></label>
+            <input class="form-control" asp-for="Item.Nome" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.Preco"></label>
+            <input class="form-control" asp-for="Item.Preco" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.Quantidade"></label>
+            <input class="form-control" asp-for="Item.Quantidade" />
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salvar</button>
+        <a class="btn btn-secondary ms-1" asp-page="Index">Cancelar</a>
+    </form>
+</div>

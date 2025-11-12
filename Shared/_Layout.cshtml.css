@@ -46,3 +46,23 @@ button.accept-policy {
   white-space: nowrap;
   line-height: 60px;
 }
+/* Hover dropdown behavior for desktop */
+@media (hover: hover) and (min-width: 992px) {
+  .navbar .dropdown:hover > .dropdown-menu,
+  .navbar .dropdown:focus-within > .dropdown-menu {
+    display: block;
+  }
+
+  .dropdown-submenu { position: relative; }
+  .dropdown-submenu > .dropdown-menu {
+    position: absolute;
+    left: 100%;
+    top: 0;
+    margin-left: .1rem;
+  }
+
+  .dropdown-submenu:hover > .dropdown-menu,
+  .dropdown-submenu:focus-within > .dropdown-menu {
+    display: block;
+  }
+}

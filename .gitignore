@@ -1,0 +1,24 @@
+## Build outputs
+bin/
+obj/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.ide
+
+## IDE/editor
+.vs/
+.vscode/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
+
+## Tooling caches
+.cache/
+node_modules/

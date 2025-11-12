@@ -1,0 +1,21 @@
+@page "{id:int}"
+@model eZionWeb.Estoque.Pages.Grupos.DeleteModel
+@{
+    ViewData["Title"] = "Excluir Grupo";
+}
+
+<div class="container">
+    <h2 class="mb-3 text-danger"><i class="bi bi-trash me-2"></i>Excluir Grupo</h2>
+    <div class="alert alert-warning">
+        Tem certeza que deseja excluir o grupo <strong>@Model.Item?.Nome</strong>?
+    </div>
+    @if (Model.TemFilhos)
+    {
+        <div class="alert alert-danger">Este grupo possui filhos e não pode ser excluído.</div>
+    }
+    <form method="post">
+        <input type="hidden" asp-for="Item!.Id" />
+        <button type="submit" class="btn btn-danger" disabled="@Model.TemFilhos"><i class="bi bi-trash me-1"></i>Excluir</button>
+        <a class="btn btn-secondary ms-1" asp-page="Index">Cancelar</a>
+    </form>
+</div>

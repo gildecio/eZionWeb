@@ -1,0 +1,39 @@
+@page
+@model eZionWeb.Estoque.Pages.Grupos.CreateModel
+@{
+    ViewData["Title"] = "Novo Grupo";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-plus-lg me-2"></i>Novo Grupo</h2>
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.Nome"></label>
+            <input class="form-control" asp-for="Item.Nome" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.Codigo"></label>
+            <input class="form-control" asp-for="Item.Codigo" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.ContaCredito"></label>
+            <input class="form-control" asp-for="Item.ContaCredito" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.ContaDebito"></label>
+            <input class="form-control" asp-for="Item.ContaDebito" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="parent">Grupo pai</label>
+            <select id="parent" class="form-select" asp-for="Item.ParentId">
+                <option value="">(sem pai)</option>
+                @foreach (var g in Model.PossiveisPais)
+                {
+                    <option value="@g.Value">@g.Text</option>
+                }
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salvar</button>
+        <a class="btn btn-secondary ms-1" asp-page="Index">Cancelar</a>
+    </form>
+</div>

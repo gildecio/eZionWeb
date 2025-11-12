@@ -9,4 +9,5 @@ public interface IProdutoRepository
     Produto Add(Produto produto);
     void Update(Produto produto);
     void Delete(int id);
+    IEnumerable<Produto> GetByGrupoId(int grupoId);
 }

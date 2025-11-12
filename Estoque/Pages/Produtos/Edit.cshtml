@@ -13,12 +13,32 @@
             <input class="form-control" asp-for="Item.Nome" />
         </div>
         <div class="mb-3">
-            <label class="form-label" asp-for="Item.Preco"></label>
-            <input class="form-control" asp-for="Item.Preco" />
+            <label class="form-label" asp-for="Item.Codigo"></label>
+            <input class="form-control" asp-for="Item.Codigo" />
         </div>
         <div class="mb-3">
-            <label class="form-label" asp-for="Item.Quantidade"></label>
-            <input class="form-control" asp-for="Item.Quantidade" />
+            <label class="form-label" asp-for="Item.CodigoAnterior"></label>
+            <input class="form-control" asp-for="Item.CodigoAnterior" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="grupo">Grupo (analítico)</label>
+            <select id="grupo" class="form-select" asp-for="Item.GrupoId">
+                <option value="">Selecione...</option>
+                @foreach (var g in Model.Analiticos)
+                {
+                    <option value="@g.Value" selected="@(Model.Item.GrupoId.HasValue && Model.Item.GrupoId.Value.ToString() == g.Value)">@g.Text</option>
+                }
+            </select>
+            <span class="text-danger" asp-validation-for="Item.GrupoId"></span>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="tipo">Tipo do Produto</label>
+            <select id="tipo" class="form-select" asp-for="Item.Tipo">
+                @foreach (var t in Model.Tipos)
+                {
+                    <option value="@t.Value" selected="@(((int)Model.Item.Tipo).ToString() == t.Value)">@t.Text</option>
+                }
+            </select>
         </div>
         <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salvar</button>
         <a class="btn btn-secondary ms-1" asp-page="Index">Cancelar</a>

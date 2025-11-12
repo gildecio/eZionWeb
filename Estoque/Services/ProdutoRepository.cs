@@ -10,7 +10,7 @@ public class ProdutoRepository : IProdutoRepository
 
     public IEnumerable<Produto> GetAll()
     {
-        lock (_lock) { return _itens.Select(p => new Produto { Id = p.Id, Nome = p.Nome, Preco = p.Preco, Quantidade = p.Quantidade }).ToList(); }
+        lock (_lock) { return _itens.Select(p => new Produto { Id = p.Id, Nome = p.Nome, GrupoId = p.GrupoId, Tipo = p.Tipo, Codigo = p.Codigo, CodigoAnterior = p.CodigoAnterior }).ToList(); }
     }
 
     public Produto? GetById(int id)
@@ -23,6 +23,8 @@ public class ProdutoRepository : IProdutoRepository
         lock (_lock)
         {
             produto.Id = _nextId++;
+            produto.Codigo = produto.Id.ToString();
+            produto.CodigoAnterior = produto.Id.ToString();
             _itens.Add(produto);
             return produto;
         }
@@ -46,6 +48,16 @@ public class ProdutoRepository : IProdutoRepository
         {
             var idx = _itens.FindIndex(p => p.Id == id);
             if (idx >= 0) _itens.RemoveAt(idx);
+        }
+    }
+
+    public IEnumerable<Produto> GetByGrupoId(int grupoId)
+    {
+        lock (_lock)
+        {
+            return _itens.Where(p => p.GrupoId.HasValue && p.GrupoId.Value == grupoId)
+                .Select(p => new Produto { Id = p.Id, Nome = p.Nome, GrupoId = p.GrupoId, Tipo = p.Tipo, Codigo = p.Codigo, CodigoAnterior = p.CodigoAnterior })
+                .ToList();
         }
     }
 }

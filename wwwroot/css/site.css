@@ -107,6 +107,7 @@ a:hover, a:focus {
 }
 .table thead th {
   border-bottom-color: var(--bs-border-color);
+  color: var(--bs-body-color);
 }
 .table-hover tbody tr:hover {
   background-color: #2f3246;
@@ -199,8 +200,8 @@ a:hover, a:focus {
 }
 .list-produtos table .text-end .btn,
 .list-grupos table .text-end .btn {
-  font-size: 62.5%;
-  padding: 0.125rem 0.25rem;
+  font-size: 75%;
+  padding: 0.15rem 0.3rem;
   line-height: 1.15;
 }
 

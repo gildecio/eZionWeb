@@ -22,9 +22,9 @@
                 </tr>
             </thead>
             <tbody>
-            @foreach (var g in Model.Itens)
+            @foreach (var g in Model.Itens.Where(x => x.Nivel == 1).OrderBy(x => x.Nome))
             {
-                <tr>
+                <tr class="grp-row" data-id="@g.Id">
                     <td>@g.Codigo</td>
                     <td>@g.Nome</td>
                     <td>@g.Nivel</td>
@@ -34,8 +34,59 @@
                         <a class="btn btn-sm btn-outline-danger ms-1" asp-page="Delete" asp-route-id="@g.Id"><i class="bi bi-trash"></i></a>
                     </td>
                 </tr>
+                <tr class="details-row" id="grp-details-@g.Id" style="display:none">
+                    <td colspan="5"></td>
+                </tr>
             }
             </tbody>
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var innerTableClass = '@((ViewContext.HttpContext.Request.Cookies["layout"] ?? "dark-purpura").StartsWith("light-") ? "table table-striped table-sm mb-0" : "table table-dark table-striped table-sm mb-0")';
+  var children = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ChildrenByParent));
+
+  function renderChildren(parentId){
+    var arr = children[parentId] || [];
+    var html = '<table class="'+innerTableClass+'"><thead><tr><th>Código</th><th>Nome</th><th>Nível</th><th>Pai</th></tr></thead><tbody>';
+    for(var i=0;i<arr.length;i++){
+      var c = arr[i];
+      html += '<tr class="grp-child-row" data-id="'+c.Id+'"><td>'+c.Codigo+'</td><td>'+c.Nome+'</td><td>'+c.Nivel+'</td><td>'+c.PaiNome+'</td></tr>';
+      html += '<tr class="child-details-row" id="grp-child-details-'+c.Id+'" style="display:none"><td colspan="4"></td></tr>';
+    }
+    html += '</tbody></table>';
+    return html;
+  }
+
+  function toggleMainRow(id){
+    var det = document.getElementById('grp-details-'+id);
+    if(!det) return;
+    var visible = det.style.display !== 'none';
+    if(visible){ det.style.display = 'none'; return; }
+    det.querySelector('td').innerHTML = renderChildren(id);
+    det.style.display = 'table-row';
+  }
+
+  document.querySelectorAll('table tbody tr.grp-row').forEach(function(row){
+    row.addEventListener('click',function(e){
+      if(e.target.closest('a,button,form')) return;
+      var id = row.getAttribute('data-id');
+      toggleMainRow(id);
+    });
+  });
+
+  document.addEventListener('click',function(e){
+    var r = e.target.closest('tr.grp-child-row');
+    if(!r) return;
+    var id = r.getAttribute('data-id');
+    var det = document.getElementById('grp-child-details-'+id);
+    if(!det) return;
+    var visible = det.style.display !== 'none';
+    if(visible){ det.style.display = 'none'; return; }
+    det.querySelector('td').innerHTML = renderChildren(id);
+    det.style.display = 'table-row';
+  });
+});
+</script>

@@ -7,16 +7,7 @@
 <div class="container">
     <h2 class="mb-3"><i class="bi bi-plus-lg me-2"></i>Nova Transferência de Estoque</h2>
     <form method="post">
-        <div class="mb-3">
-            <label class="form-label" for="produto">Produto</label>
-            <select id="produto" class="form-select" asp-for="ProdutoId">
-                <option value="">Selecione...</option>
-                @foreach (var p in Model.Produtos)
-                {
-                    <option value="@p.Value">@p.Text</option>
-                }
-            </select>
-        </div>
+        <div asp-validation-summary="All" class="text-danger"></div>
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label class="form-label" for="origem">Local de Origem</label>
@@ -40,24 +31,114 @@
             </div>
         </div>
         <div class="mb-3">
-            <label class="form-label" for="unidade">Unidade</label>
-            <select id="unidade" class="form-select" asp-for="UnidadeId">
-                <option value="">Selecione...</option>
-                @foreach (var u in Model.Unidades)
-                {
-                    <option value="@u.Value">@u.Text</option>
-                }
-            </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label" asp-for="Quantidade"></label>
-            <input class="form-control" asp-for="Quantidade" />
-        </div>
-        <div class="mb-3">
             <label class="form-label" asp-for="Observacao"></label>
             <input class="form-control" asp-for="Observacao" />
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <label class="form-label">Itens</label>
+                <button class="btn btn-outline-primary btn-sm" id="addItem">Adicionar Item</button>
+            </div>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Produto</th>
+                        <th style="width: 30%">Unidade</th>
+                        <th style="width: 20%">Quantidade</th>
+                        <th style="width: 10%"></th>
+                    </tr>
+                </thead>
+                <tbody id="itens-body">
+                @for (var i = 0; i < Model.Itens.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <select class="form-select" asp-for="Itens[i].ProdutoId">
+                                <option value="">Selecione...</option>
+                                @foreach (var p in Model.Produtos)
+                                {
+                                    <option value="@p.Value">@p.Text</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-select" asp-for="Itens[i].UnidadeId">
+                                <option value="">Selecione...</option>
+                                @foreach (var u in Model.Unidades)
+                                {
+                                    <option value="@u.Value">@u.Text</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input class="form-control" asp-for="Itens[i].Quantidade" />
+                        </td>
+                        <td>
+                            <button class="btn btn-outline-danger btn-sm remove-item" type="button">Remover</button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
         </div>
         <button type="submit" class="btn btn-primary">Salvar</button>
         <a class="btn btn-secondary ms-2" asp-page="Index">Cancelar</a>
     </form>
+    <template id="item-template">
+        <tr>
+            <td>
+                <select class="form-select" data-name="ProdutoId">
+                    <option value="">Selecione...</option>
+                    @foreach (var p in Model.Produtos)
+                    {
+                        <option value="@p.Value">@p.Text</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <select class="form-select" data-name="UnidadeId">
+                    <option value="">Selecione...</option>
+                    @foreach (var u in Model.Unidades)
+                    {
+                        <option value="@u.Value">@u.Text</option>
+                    }
+                </select>
+            </td>
+            <td>
+                <input class="form-control" data-name="Quantidade" />
+            </td>
+            <td>
+                <button class="btn btn-outline-danger btn-sm remove-item" type="button">Remover</button>
+            </td>
+        </tr>
+    </template>
+    <script>
+        const addItemBtn = document.getElementById('addItem');
+        const body = document.getElementById('itens-body');
+        const tpl = document.getElementById('item-template');
+        addItemBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            const index = body.children.length;
+            const node = tpl.content.cloneNode(true);
+            const selects = node.querySelectorAll('select');
+            const input = node.querySelector('input');
+            selects.forEach(s => {
+                const n = s.getAttribute('data-name');
+                s.setAttribute('name', `Itens[${index}].${n}`);
+                s.setAttribute('id', `Itens_${index}__${n}`);
+            });
+            if (input) {
+                const n = input.getAttribute('data-name');
+                input.setAttribute('name', `Itens[${index}].${n}`);
+                input.setAttribute('id', `Itens_${index}__${n}`);
+            }
+            body.appendChild(node);
+        });
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('remove-item')) {
+                const tr = e.target.closest('tr');
+                if (tr && body.contains(tr)) body.removeChild(tr);
+            }
+        });
+    </script>
 </div>

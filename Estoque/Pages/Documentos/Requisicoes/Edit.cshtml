@@ -1,11 +1,11 @@
 @page "{id:int}"
-@model eZionWeb.Estoque.Pages.Documentos.Ajustes.EditModel
+@model eZionWeb.Estoque.Pages.Documentos.Requisicoes.EditModel
 @{
-    ViewData["Title"] = "Editar Ajuste";
+    ViewData["Title"] = "Editar Requisição";
 }
 
 <div class="container">
-    <h2 class="mb-3"><i class="bi bi-pencil me-2"></i>Editar Ajuste de Estoque</h2>
+    <h2 class="mb-3"><i class="bi bi-pencil me-2"></i>Editar Requisição de Estoque</h2>
     <form method="post">
         <div asp-validation-summary="All" class="text-danger"></div>
         <input type="hidden" asp-for="Id" />
@@ -20,25 +20,14 @@
             </select>
         </div>
         <div class="mb-3">
-            <label class="form-label" for="local">Local</label>
-            <select id="local" class="form-select" asp-for="LocalId">
+            <label class="form-label" for="origem">Origem</label>
+            <select id="origem" class="form-select" asp-for="LocalOrigemId">
                 <option value="">Selecione...</option>
                 @foreach (var l in Model.Locais)
                 {
-                    <option value="@l.Value" selected="@(Model.LocalId.ToString() == l.Value)">@l.Text</option>
+                    <option value="@l.Value" selected="@(Model.LocalOrigemId.ToString() == l.Value)">@l.Text</option>
                 }
             </select>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Tipo</label>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" asp-for="Entrada" value="true" checked="@Model.Entrada" />
-                <label class="form-check-label">Entrada</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" asp-for="Entrada" value="false" checked="@(!Model.Entrada)" />
-                <label class="form-check-label">Saída</label>
-            </div>
         </div>
         <div class="mb-3">
             <label class="form-label" for="unidade">Unidade</label>

@@ -14,17 +14,13 @@ public class CreateModel : PageModel
     private readonly IUnidadeRepository _unidades;
 
     [BindProperty]
-    public int ProdutoId { get; set; }
-    [BindProperty]
     public int LocalOrigemId { get; set; }
     [BindProperty]
     public int LocalDestinoId { get; set; }
     [BindProperty]
-    public int UnidadeId { get; set; }
-    [BindProperty]
-    public decimal Quantidade { get; set; }
-    [BindProperty]
     public string Observacao { get; set; } = string.Empty;
+    [BindProperty]
+    public List<DocumentoItem> Itens { get; set; } = new();
 
     public List<SelectListItem> Produtos { get; set; } = new();
     public List<SelectListItem> Locais { get; set; } = new();
@@ -46,12 +42,50 @@ public class CreateModel : PageModel
             .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Nome }).ToList();
         Unidades = _unidades.GetAll().OrderBy(u => u.Nome)
             .Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Nome + " (" + u.Sigla + ")" }).ToList();
+        if (Itens.Count == 0) Itens.Add(new DocumentoItem());
     }
 
     public IActionResult OnPost()
     {
-        var doc = new TransferenciaEstoque { ProdutoId = ProdutoId, LocalOrigemId = LocalOrigemId, LocalDestinoId = LocalDestinoId, UnidadeId = UnidadeId, Quantidade = Quantidade, Observacao = Observacao };
-        _docs.AddTransferencia(doc);
-        return RedirectToPage("Index");
+        if (LocalOrigemId <= 0) ModelState.AddModelError(nameof(LocalOrigemId), "Local de origem é obrigatório");
+        if (LocalDestinoId <= 0) ModelState.AddModelError(nameof(LocalDestinoId), "Local de destino é obrigatório");
+        if (LocalDestinoId == LocalOrigemId) ModelState.AddModelError(nameof(LocalDestinoId), "Origem e destino não podem ser iguais");
+        if (Itens == null || Itens.Count == 0) ModelState.AddModelError("Itens", "Ao menos um item é obrigatório");
+        if (Itens != null)
+        {
+            for (int i = 0; i < Itens.Count; i++)
+            {
+                if (Itens[i].ProdutoId <= 0) ModelState.AddModelError($"Itens[{i}].ProdutoId", "Produto é obrigatório");
+                if (Itens[i].UnidadeId <= 0) ModelState.AddModelError($"Itens[{i}].UnidadeId", "Unidade é obrigatória");
+                if (Itens[i].Quantidade <= 0) ModelState.AddModelError($"Itens[{i}].Quantidade", "Quantidade deve ser maior que zero");
+            }
+        }
+        if (!ModelState.IsValid)
+        {
+            Produtos = _produtos.GetAll().OrderBy(p => p.Nome)
+                .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Nome }).ToList();
+            Locais = _locais.GetAll().OrderBy(l => l.Nome)
+                .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Nome }).ToList();
+            Unidades = _unidades.GetAll().OrderBy(u => u.Nome)
+                .Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Nome + " (" + u.Sigla + ")" }).ToList();
+            return Page();
+        }
+        try
+        {
+            var doc = new TransferenciaEstoque { LocalOrigemId = LocalOrigemId, LocalDestinoId = LocalDestinoId, Observacao = Observacao ?? string.Empty, Itens = Itens ?? new List<DocumentoItem>() };
+            _docs.AddTransferencia(doc);
+            return RedirectToPage("Index");
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError(string.Empty, ex.Message);
+            Produtos = _produtos.GetAll().OrderBy(p => p.Nome)
+                .Select(p => new SelectListItem { Value = p.Id.ToString(), Text = p.Nome }).ToList();
+            Locais = _locais.GetAll().OrderBy(l => l.Nome)
+                .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Nome }).ToList();
+            Unidades = _unidades.GetAll().OrderBy(u => u.Nome)
+                .Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Nome + " (" + u.Sigla + ")" }).ToList();
+            return Page();
+        }
     }
 }

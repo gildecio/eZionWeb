@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace eZionWeb.Estoque.Pages.Documentos.Ajustes;
+namespace eZionWeb.Estoque.Pages.Documentos.Devolucoes;
 
 public class EditModel : PageModel
 {
@@ -18,9 +18,7 @@ public class EditModel : PageModel
     [BindProperty]
     public int ProdutoId { get; set; }
     [BindProperty]
-    public int LocalId { get; set; }
-    [BindProperty]
-    public bool Entrada { get; set; }
+    public int LocalDestinoId { get; set; }
     [BindProperty]
     public int UnidadeId { get; set; }
     [BindProperty]
@@ -42,14 +40,13 @@ public class EditModel : PageModel
 
     public IActionResult OnGet(int id)
     {
-        var item = _docs.GetAjustes().FirstOrDefault(d => d.Id == id);
+        var item = _docs.GetDevolucoes().FirstOrDefault(d => d.Id == id);
         if (item == null) return RedirectToPage("Index");
         if (item.MovimentoId.HasValue || (item.MovimentoIds != null && item.MovimentoIds.Count > 0))
             return RedirectToPage("Index");
         Id = item.Id;
         ProdutoId = item.ProdutoId;
-        LocalId = item.LocalId;
-        Entrada = item.Entrada;
+        LocalDestinoId = item.LocalDestinoId;
         UnidadeId = item.UnidadeId;
         Quantidade = item.Quantidade;
         Observacao = item.Observacao;
@@ -66,7 +63,7 @@ public class EditModel : PageModel
     public IActionResult OnPost()
     {
         if (ProdutoId <= 0) ModelState.AddModelError(nameof(ProdutoId), "Produto é obrigatório");
-        if (LocalId <= 0) ModelState.AddModelError(nameof(LocalId), "Local é obrigatório");
+        if (LocalDestinoId <= 0) ModelState.AddModelError(nameof(LocalDestinoId), "Local de destino é obrigatório");
         if (UnidadeId <= 0) ModelState.AddModelError(nameof(UnidadeId), "Unidade é obrigatória");
         if (Quantidade <= 0) ModelState.AddModelError(nameof(Quantidade), "Quantidade deve ser maior que zero");
         if (!ModelState.IsValid)
@@ -81,8 +78,8 @@ public class EditModel : PageModel
         }
         try
         {
-            var doc = new AjusteEstoque { Id = Id, ProdutoId = ProdutoId, LocalId = LocalId, Entrada = Entrada, UnidadeId = UnidadeId, Quantidade = Quantidade, Observacao = Observacao };
-            _docs.UpdateAjuste(doc);
+            var doc = new DevolucaoEstoque { Id = Id, ProdutoId = ProdutoId, LocalDestinoId = LocalDestinoId, UnidadeId = UnidadeId, Quantidade = Quantidade, Observacao = Observacao };
+            _docs.UpdateDevolucao(doc);
             return RedirectToPage("Index");
         }
         catch (Exception ex)

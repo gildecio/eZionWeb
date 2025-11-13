@@ -1,4 +1,5 @@
 using eZionWeb.Estoque.Services;
+using eZionWeb.Estoque.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -44,21 +45,59 @@ public class IndexModel : PageModel
             .Select(l => new SelectListItem { Value = l.Id.ToString(), Text = l.Nome }).ToList();
 
         var query = _docs.GetDevolucoes().AsEnumerable();
-        if (ProdutoId.HasValue) query = query.Where(d => d.ProdutoId == ProdutoId.Value);
+        if (ProdutoId.HasValue) query = query.Where(d => d.ProdutoId == ProdutoId.Value || (d.Itens != null && d.Itens.Any(it => it.ProdutoId == ProdutoId.Value)));
         if (LocalId.HasValue) query = query.Where(d => d.LocalDestinoId == LocalId.Value);
         if (De.HasValue) query = query.Where(d => d.Data >= De.Value);
         if (Ate.HasValue) query = query.Where(d => d.Data <= Ate.Value);
 
-        Itens = query.Select(d => new Linha
+        var linhas = new List<Linha>();
+        foreach (var d in query)
         {
-            Id = d.Id,
-            Data = d.Data,
-            ProdutoNome = prods.TryGetValue(d.ProdutoId, out var pn) ? pn : d.ProdutoId.ToString(),
-            DestinoNome = locs.TryGetValue(d.LocalDestinoId, out var ln) ? ln : d.LocalDestinoId.ToString(),
-            Quantidade = d.Quantidade,
-            UnidadeSigla = uns.TryGetValue(d.UnidadeId, out var us) ? us : d.UnidadeId.ToString(),
-            Observacao = d.Observacao
-        }).Take(500).ToList();
+            if (d.Itens != null && d.Itens.Count > 0)
+            {
+                foreach (var it in d.Itens)
+                {
+                    linhas.Add(new Linha
+                    {
+                        Id = d.Id,
+                        Data = d.Data,
+                        ProdutoNome = prods.TryGetValue(it.ProdutoId, out var pn) ? pn : it.ProdutoId.ToString(),
+                        DestinoNome = locs.TryGetValue(d.LocalDestinoId, out var ln) ? ln : d.LocalDestinoId.ToString(),
+                        Quantidade = it.Quantidade,
+                        UnidadeSigla = uns.TryGetValue(it.UnidadeId, out var us) ? us : it.UnidadeId.ToString(),
+                        Observacao = d.Observacao,
+                        Status = d.Status
+                    });
+                }
+            }
+            else
+            {
+                linhas.Add(new Linha
+                {
+                    Id = d.Id,
+                    Data = d.Data,
+                    ProdutoNome = prods.TryGetValue(d.ProdutoId, out var pn) ? pn : d.ProdutoId.ToString(),
+                    DestinoNome = locs.TryGetValue(d.LocalDestinoId, out var ln) ? ln : d.LocalDestinoId.ToString(),
+                    Quantidade = d.Quantidade,
+                    UnidadeSigla = uns.TryGetValue(d.UnidadeId, out var us) ? us : d.UnidadeId.ToString(),
+                    Observacao = d.Observacao,
+                    Status = d.Status
+                });
+            }
+        }
+        Itens = linhas.Take(500).ToList();
+    }
+
+    public Microsoft.AspNetCore.Mvc.IActionResult OnPostEstornar(int id)
+    {
+        _docs.EstornarDocumento(id);
+        return RedirectToPage();
+    }
+
+    public Microsoft.AspNetCore.Mvc.IActionResult OnPostEfetivar(int id)
+    {
+        _docs.EfetivarDocumento(id);
+        return RedirectToPage();
     }
 
     public class Linha
@@ -70,5 +109,6 @@ public class IndexModel : PageModel
         public decimal Quantidade { get; set; }
         public string UnidadeSigla { get; set; } = string.Empty;
         public string Observacao { get; set; } = string.Empty;
+        public DocumentoStatus Status { get; set; }
     }
 }

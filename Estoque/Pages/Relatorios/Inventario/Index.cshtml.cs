@@ -1,4 +1,5 @@
 using eZionWeb.Estoque.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -19,6 +20,9 @@ public class IndexModel : PageModel
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)]
     public int? LocalId { get; set; }
 
+    [BindProperty(SupportsGet = true)]
+    public string? Export { get; set; }
+
     public IndexModel(IMovimentoRepository movs, IProdutoRepository produtos, ILocalEstoqueRepository locais)
     {
         _movs = movs;
@@ -26,7 +30,7 @@ public class IndexModel : PageModel
         _locais = locais;
     }
 
-    public void OnGet()
+    public IActionResult OnGet()
     {
         var prods = _produtos.GetAll().ToDictionary(p => p.Id, p => p.Nome);
         var locs = _locais.GetAll().ToDictionary(l => l.Id, l => l.Nome);
@@ -49,6 +53,19 @@ public class IndexModel : PageModel
             }
         }
         Itens = itens.OrderBy(i => i.ProdutoNome).ThenBy(i => i.LocalNome).ToList();
+
+        if ((Export ?? string.Empty).ToLowerInvariant() == "csv")
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("Produto;Local;Saldo");
+            foreach (var i in Itens)
+            {
+                sb.AppendLine($"{i.ProdutoNome};{i.LocalNome};{i.Saldo}");
+            }
+            var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/csv", "inventario.csv");
+        }
+        return Page();
     }
 
     public class Linha

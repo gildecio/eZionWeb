@@ -1,4 +1,5 @@
 using eZionWeb.Estoque.Services;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -23,6 +24,8 @@ public class IndexModel : PageModel
     public int? ProdutoId { get; set; }
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)]
     public int? LocalId { get; set; }
+    [BindProperty(SupportsGet = true)]
+    public string? Export { get; set; }
 
     public IndexModel(IDocumentoService docs, IProdutoRepository produtos, ILocalEstoqueRepository locais, IUnidadeRepository unidades)
     {
@@ -32,7 +35,7 @@ public class IndexModel : PageModel
         _unidades = unidades;
     }
 
-    public void OnGet()
+    public IActionResult OnGet()
     {
         var prods = _produtos.GetAll().ToDictionary(p => p.Id, p => p.Nome);
         var locs = _locais.GetAll().ToDictionary(l => l.Id, l => l.Nome);
@@ -59,6 +62,19 @@ public class IndexModel : PageModel
             UnidadeSigla = uns.TryGetValue(d.UnidadeId, out var us) ? us : d.UnidadeId.ToString(),
             Observacao = d.Observacao
         }).Take(1000).ToList();
+
+        if ((Export ?? string.Empty).ToLowerInvariant() == "csv")
+        {
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine("Data;Produto;Local;Tipo;Quantidade;Unidade;Observacao");
+            foreach (var i in Itens)
+            {
+                sb.AppendLine($"{i.Data:yyyy-MM-dd};{i.ProdutoNome};{i.LocalNome};{i.TipoTexto};{i.Quantidade};{i.UnidadeSigla};{i.Observacao}");
+            }
+            var bytes = System.Text.Encoding.UTF8.GetBytes(sb.ToString());
+            return File(bytes, "text/csv", "auditoria_ajustes.csv");
+        }
+        return Page();
     }
 
     public class Linha

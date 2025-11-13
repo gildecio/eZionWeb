@@ -18,4 +18,6 @@ public class MovimentoEstoque
     public decimal Quantidade { get; set; }
     public DateTime Data { get; set; } = DateTime.UtcNow;
     public string Observacao { get; set; } = string.Empty;
+    public int DocumentoId { get; set; }
+    public int? MovimentoOrigemId { get; set; }
 }

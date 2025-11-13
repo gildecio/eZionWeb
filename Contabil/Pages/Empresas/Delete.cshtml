@@ -1,0 +1,17 @@
+@page "{id:int}"
+@model eZionWeb.Contabil.Pages.Empresas.DeleteModel
+@{
+    ViewData["Title"] = "Excluir Empresa";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-trash me-2"></i>Excluir Empresa</h2>
+    <div class="alert alert-warning">Deseja realmente excluir a empresa <strong>@Model.Item?.Nome</strong>?</div>
+    <form method="post">
+        <input type="hidden" asp-for="Item!.Id" />
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Excluir</button>
+            <a class="btn btn-outline-light ms-2" asp-page="Index"><i class="bi bi-x me-1"></i>Cancelar</a>
+        </div>
+    </form>
+</div>

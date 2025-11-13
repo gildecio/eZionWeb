@@ -1,0 +1,78 @@
+@page
+@model eZionWeb.Contabil.Pages.Lancamentos.IndexModel
+@{
+    ViewData["Title"] = "Lançamentos";
+}
+
+<div class="container list-produtos">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="mb-0"><i class="bi bi-journal-text me-2"></i>Lançamentos Contábeis</h2>
+        <a class="btn btn-primary" asp-page="Create"><i class="bi bi-plus-lg me-1"></i>Novo</a>
+    </div>
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-3">
+            <label class="form-label" for="empresa">Empresa</label>
+            <select id="empresa" class="form-select" name="EmpresaId">
+                <option value="">Todas</option>
+                @foreach (var e in Model.Empresas)
+                {
+                    <option value="@e.Value" selected="@(Model.EmpresaId.HasValue && Model.EmpresaId.Value.ToString() == e.Value)">@e.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="de">De</label>
+            <input id="de" type="date" class="form-control" name="De" value="@Model.De?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="ate">Até</label>
+            <input id="ate" type="date" class="form-control" name="Ate" value="@Model.Ate?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="conta">Conta</label>
+            <select id="conta" class="form-select" name="PlanoContaId">
+                <option value="">Todas</option>
+                @foreach (var c in Model.Contas)
+                {
+                    <option value="@c.Value" selected="@(Model.PlanoContaId.HasValue && Model.PlanoContaId.Value.ToString() == c.Value)">@c.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-outline-light"><i class="bi bi-filter me-1"></i>Filtrar</button>
+        </div>
+    </form>
+    <div class="table-responsive">
+@{ var tableClass = (ViewContext.HttpContext.Request.Cookies["layout"] ?? "dark-purpura").StartsWith("light-") ? "table table-striped align-middle" : "table table-dark table-striped align-middle"; }
+        <table class="@tableClass">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Empresa</th>
+                    <th>Conta</th>
+                    <th>Histórico</th>
+                    <th>Tipo</th>
+                    <th class="text-end">Valor</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var l in Model.Itens)
+            {
+                <tr>
+                    <td>@l.Data.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                    <td>@l.EmpresaNome</td>
+                    <td>@l.ContaNome</td>
+                    <td>@l.Historico</td>
+                    <td>@l.TipoTexto</td>
+                    <td class="text-end">@l.Valor.ToString("N2")</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-light" asp-page="Edit" asp-route-id="@l.Id"><i class="bi bi-pencil"></i></a>
+                        <a class="btn btn-sm btn-outline-danger ms-1" asp-page="Delete" asp-route-id="@l.Id"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

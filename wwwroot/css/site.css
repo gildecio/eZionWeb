@@ -204,6 +204,17 @@ a:hover, a:focus {
   line-height: 1.15;
 }
 
+.btn-acao {
+  font-size: 62.5%;
+  padding: 0.125rem 0.25rem;
+  line-height: 1.15;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Forms */
 .form-control, .form-select {
   background-color: var(--bs-tertiary-bg);

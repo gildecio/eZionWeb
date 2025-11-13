@@ -1,0 +1,27 @@
+@page "{id:int}"
+@model eZionWeb.Contabil.Pages.Empresas.EditModel
+@{
+    ViewData["Title"] = "Editar Empresa";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-pencil me-2"></i>Editar Empresa</h2>
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input type="hidden" asp-for="Item!.Id" />
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Nome</label>
+                <input class="form-control" asp-for="Item!.Nome" />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">CNPJ</label>
+                <input class="form-control" asp-for="Item!.Cnpj" />
+            </div>
+        </div>
+        <div class="d-flex justify-content-end">
+            <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salvar</button>
+            <a class="btn btn-outline-light ms-2" asp-page="Index"><i class="bi bi-x me-1"></i>Cancelar</a>
+        </div>
+    </form>
+</div>

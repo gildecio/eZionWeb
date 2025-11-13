@@ -4,7 +4,7 @@
     ViewData["Title"] = "Devoluções";
 }
 
-<div class="container">
+<div class="container list-produtos">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h2 class="mb-0"><i class="bi bi-box-arrow-in-right me-2"></i>Devoluções de Estoque</h2>
         <a class="btn btn-primary" asp-page="Create"><i class="bi bi-plus-lg me-1"></i>Novo</a>
@@ -77,7 +77,7 @@
                             <a class="btn btn-sm btn-outline-light" asp-page="View" asp-route-id="@d.Id"><i class="bi bi-eye"></i></a>
                             <form method="post" asp-page-handler="Estornar" asp-route-id="@d.Id" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('Confirmar estorno?');"><i class="bi bi-arrow-counterclockwise"></i></button>
-                            </form>
+                                </form>
                         }
                     </td>
                 </tr>

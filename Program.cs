@@ -18,6 +18,9 @@ builder.Services.AddSingleton<eZionWeb.Estoque.Services.IUnidadeRepository, eZio
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IConversaoRepository>(sp => (eZionWeb.Estoque.Services.UnidadeRepository)sp.GetRequiredService<eZionWeb.Estoque.Services.IUnidadeRepository>());
 builder.Services.AddSingleton<eZionWeb.Configuracoes.Services.ISequenciaRepository, eZionWeb.Configuracoes.Services.SequenciaRepository>();
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IDocumentoService, eZionWeb.Estoque.Services.DocumentoService>();
+builder.Services.AddSingleton<eZionWeb.Contabil.Services.IPlanoContaRepository, eZionWeb.Contabil.Services.PlanoContaRepository>();
+builder.Services.AddSingleton<eZionWeb.Contabil.Services.ILancamentoRepository, eZionWeb.Contabil.Services.LancamentoRepository>();
+builder.Services.AddSingleton<eZionWeb.Contabil.Services.IEmpresaRepository, eZionWeb.Contabil.Services.EmpresaRepository>();
 
 builder.Services.AddRazorPages(options =>
 {
@@ -39,6 +42,24 @@ builder.Services.AddRazorPages(options =>
             if (!string.IsNullOrEmpty(template) && template.StartsWith("Estoque/Pages/"))
             {
                 var newTemplate = template.Replace("Estoque/Pages/", "Estoque/");
+                model.Selectors.Add(new SelectorModel
+                {
+                    AttributeRouteModel = new AttributeRouteModel
+                    {
+                        Template = newTemplate
+                    }
+                });
+            }
+        }
+    });
+    options.Conventions.AddFolderRouteModelConvention("/Contabil/Pages", model =>
+    {
+        foreach (var selector in model.Selectors.ToList())
+        {
+            var template = selector.AttributeRouteModel?.Template;
+            if (!string.IsNullOrEmpty(template) && template.StartsWith("Contabil/Pages/"))
+            {
+                var newTemplate = template.Replace("Contabil/Pages/", "Contabil/");
                 model.Selectors.Add(new SelectorModel
                 {
                     AttributeRouteModel = new AttributeRouteModel
@@ -79,6 +100,9 @@ using (var scope = app.Services.CreateScope())
     var unidades = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IUnidadeRepository>();
     var convs = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IConversaoRepository>();
     var seqs = scope.ServiceProvider.GetRequiredService<eZionWeb.Configuracoes.Services.ISequenciaRepository>();
+    var contasRepo = scope.ServiceProvider.GetRequiredService<eZionWeb.Contabil.Services.IPlanoContaRepository>();
+    var lancRepo = scope.ServiceProvider.GetRequiredService<eZionWeb.Contabil.Services.ILancamentoRepository>();
+    var empRepo = scope.ServiceProvider.GetRequiredService<eZionWeb.Contabil.Services.IEmpresaRepository>();
     if (!grupos.GetAll().Any())
     {
         var gInfo = grupos.Add(new eZionWeb.Estoque.Models.Grupo { Nome = "Informática" });
@@ -124,6 +148,24 @@ using (var scope = app.Services.CreateScope())
         seqs.Add(new eZionWeb.Configuracoes.Models.Sequencia { Documento = "Requisicao", Serie = "0", Tipo = eZionWeb.Configuracoes.Models.TipoSequencia.Anual, Atual = 0 });
         seqs.Add(new eZionWeb.Configuracoes.Models.Sequencia { Documento = "Devolucao", Serie = "0", Tipo = eZionWeb.Configuracoes.Models.TipoSequencia.Anual, Atual = 0 });
         seqs.Add(new eZionWeb.Configuracoes.Models.Sequencia { Documento = "Transferencia", Serie = "0", Tipo = eZionWeb.Configuracoes.Models.TipoSequencia.Anual, Atual = 0 });
+    }
+
+    if (!empRepo.GetAll().Any())
+    {
+        empRepo.Add(new eZionWeb.Contabil.Models.Empresa { Nome = "Empresa Exemplo Ltda", Cnpj = "00.000.000/0001-00" });
+    }
+    var empresaDefault = empRepo.GetAll().FirstOrDefault();
+    if (!contasRepo.GetAll().Any())
+    {
+        var caixa = contasRepo.Add(new eZionWeb.Contabil.Models.PlanoConta { EmpresaId = empresaDefault?.Id ?? 1, Codigo = "1.1.1", Nome = "Caixa" });
+        var banco = contasRepo.Add(new eZionWeb.Contabil.Models.PlanoConta { EmpresaId = empresaDefault?.Id ?? 1, Codigo = "1.1.2", Nome = "Banco" });
+        var receita = contasRepo.Add(new eZionWeb.Contabil.Models.PlanoConta { EmpresaId = empresaDefault?.Id ?? 1, Codigo = "3.1.1", Nome = "Receitas" });
+        var despesa = contasRepo.Add(new eZionWeb.Contabil.Models.PlanoConta { EmpresaId = empresaDefault?.Id ?? 1, Codigo = "4.1.1", Nome = "Despesas" });
+
+        lancRepo.Add(new eZionWeb.Contabil.Models.Lancamento { EmpresaId = empresaDefault?.Id ?? 1, Data = DateTime.UtcNow.AddDays(-7).Date, PlanoContaId = receita.Id, Tipo = eZionWeb.Contabil.Models.TipoLancamento.Credito, Historico = "Venda serviço", Valor = 1500m });
+        lancRepo.Add(new eZionWeb.Contabil.Models.Lancamento { EmpresaId = empresaDefault?.Id ?? 1, Data = DateTime.UtcNow.AddDays(-6).Date, PlanoContaId = caixa.Id, Tipo = eZionWeb.Contabil.Models.TipoLancamento.Debito, Historico = "Recebimento em caixa", Valor = 1500m });
+        lancRepo.Add(new eZionWeb.Contabil.Models.Lancamento { EmpresaId = empresaDefault?.Id ?? 1, Data = DateTime.UtcNow.AddDays(-3).Date, PlanoContaId = despesa.Id, Tipo = eZionWeb.Contabil.Models.TipoLancamento.Debito, Historico = "Compra material", Valor = 200m });
+        lancRepo.Add(new eZionWeb.Contabil.Models.Lancamento { EmpresaId = empresaDefault?.Id ?? 1, Data = DateTime.UtcNow.AddDays(-2).Date, PlanoContaId = banco.Id, Tipo = eZionWeb.Contabil.Models.TipoLancamento.Credito, Historico = "Depósito bancário", Valor = 1000m });
     }
 
     var docsSvc = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IDocumentoService>();

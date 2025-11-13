@@ -15,7 +15,13 @@
 </head>
 <body>
     <header>
-        @{ var layoutName = layout; var isLightAzul = layoutName == "light-azul"; var themeIsLight = theme == "light"; }
+        @{ var layoutName = layout; var isLightAzul = layoutName == "light-azul"; var themeIsLight = theme == "light"; 
+           var empRepo = Context.RequestServices.GetService(typeof(eZionWeb.Contabil.Services.IEmpresaRepository)) as eZionWeb.Contabil.Services.IEmpresaRepository;
+           int? empId = null; var empCookie = Context.Request.Cookies["empresaId"]; if (int.TryParse(empCookie, out var eid)) empId = eid;
+           var empresaAtual = empRepo?.GetById(empId ?? 0);
+           var empresaNome = empresaAtual?.Nome ?? "eZionWeb";
+           var empresasAtivas = empRepo?.GetAll().Where(e => e.Ativa).OrderBy(e => e.Nome).ToList() ?? new List<eZionWeb.Contabil.Models.Empresa>();
+        }
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm @(themeIsLight ? "navbar-light" : "navbar-dark") @(isLightAzul ? "bg-baby-blue" : "bg-dark") border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" href="/">eZionWeb</a>
@@ -149,6 +155,19 @@
                                 </span>
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><h6 class="dropdown-header"><i class="bi bi-buildings me-1"></i>Empresa</h6></li>
+                                <li>
+                                    <form method="post" asp-page="/Contabil/Empresas/Selecionar" class="px-3">
+                                        <select class="form-select form-select-sm mb-2" name="EmpresaId">
+                                            @foreach (var e in empresasAtivas)
+                                            {
+                                                <option value="@e.Id" selected="@(empId.HasValue && empId.Value == e.Id)">@e.Nome</option>
+                                            }
+                                        </select>
+                                        <button type="submit" class="btn btn-sm btn-outline-light w-100"><i class="bi bi-check2 me-1"></i>Selecionar</button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider" /></li>
                                 <li>
                                     <a class="dropdown-item" href="/Configuracoes">
                                         <i class="bi bi-gear me-1"></i>Configurações
@@ -174,7 +193,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container">
-            &copy; 2025 - eZionWeb - <a asp-area="" asp-page="/Privacy">Privacy</a>
+            &copy; 2025 - @empresaNome - <a asp-area="" asp-page="/Privacy">Privacy</a>
         </div>
     </footer>
 

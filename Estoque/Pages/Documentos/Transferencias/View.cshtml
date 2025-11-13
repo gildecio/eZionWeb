@@ -1,0 +1,96 @@
+@page
+@model eZionWeb.Estoque.Pages.Documentos.Transferencias.ViewModel
+@{
+    ViewData["Title"] = "Transferência";
+}
+
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>Transferência de Estoque</h2>
+        <a class="btn btn-outline-light" asp-page="Index">Voltar</a>
+    </div>
+    <form>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Id</label>
+                <input class="form-control text-dark" value="@Model.Doc!.Id" disabled />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Data</label>
+                <input class="form-control text-dark" value="@Model.Doc!.Data.ToLocalTime().ToString("dd/MM/yyyy HH:mm")" disabled />
+            </div>
+            <div class="col-md-3 mb-3">
+                <label class="form-label">Status</label>
+                <input class="form-control text-dark" value="@Model.Doc!.Status" disabled />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="origem">Local de Origem</label>
+                <select id="origem" class="form-select text-dark" asp-for="LocalOrigemId" disabled>
+                    <option value="">Selecione...</option>
+                    @foreach (var l in Model.Locais)
+                    {
+                        <option value="@l.Value">@l.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="destino">Local de Destino</label>
+                <select id="destino" class="form-select text-dark" asp-for="LocalDestinoId" disabled>
+                    <option value="">Selecione...</option>
+                    @foreach (var l in Model.Locais)
+                    {
+                        <option value="@l.Value">@l.Text</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Observacao"></label>
+            <input class="form-control text-dark" asp-for="Observacao" readonly />
+        </div>
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <label class="form-label">Itens</label>
+            </div>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Produto</th>
+                        <th style="width: 30%">Unidade</th>
+                        <th style="width: 20%">Quantidade</th>
+                    </tr>
+                </thead>
+                <tbody id="itens-body">
+                @for (var i = 0; i < Model.Itens.Count; i++)
+                {
+                    <tr>
+                        <td>
+                            <select class="form-select text-dark" asp-for="Itens[i].ProdutoId" disabled>
+                                <option value="">Selecione...</option>
+                                @foreach (var p in Model.Produtos)
+                                {
+                                    <option value="@p.Value">@p.Text</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <select class="form-select text-dark" asp-for="Itens[i].UnidadeId" disabled>
+                                <option value="">Selecione...</option>
+                                @foreach (var u in Model.Unidades)
+                                {
+                                    <option value="@u.Value">@u.Text</option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <input class="form-control text-dark" asp-for="Itens[i].Quantidade" readonly />
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>

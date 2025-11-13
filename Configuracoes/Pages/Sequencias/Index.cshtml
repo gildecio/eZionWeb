@@ -1,0 +1,41 @@
+@page "/Configuracoes/Sequencias"
+@model eZionWeb.Configuracoes.Pages.Sequencias.IndexModel
+@{
+    ViewData["Title"] = "Sequências";
+}
+
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="mb-0"><i class="bi bi-list-ol me-2"></i>Sequências</h2>
+        <a class="btn btn-primary" asp-page="Create"><i class="bi bi-plus-lg me-1"></i>Novo</a>
+    </div>
+    <div class="table-responsive">
+@{ var tableClass = (ViewContext.HttpContext.Request.Cookies["layout"] ?? "dark-purpura").StartsWith("light-") ? "table table-striped align-middle" : "table table-dark table-striped align-middle"; }
+        <table class="@tableClass">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Documento</th>
+                    <th>Atual</th>
+                    <th>Tipo</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var s in Model.Itens)
+            {
+                <tr>
+                    <td>@s.Id</td>
+                    <td>@s.Documento</td>
+                    <td>@s.Atual</td>
+                    <td>@(s.Tipo == eZionWeb.Configuracoes.Models.TipoSequencia.Anual ? "Anual" : "Contínua")</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-light" asp-page="Edit" asp-route-id="@s.Id"><i class="bi bi-pencil"></i></a>
+                        <a class="btn btn-sm btn-outline-danger ms-1" asp-page="Delete" asp-route-id="@s.Id"><i class="bi bi-trash"></i></a>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

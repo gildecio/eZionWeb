@@ -287,3 +287,14 @@ html[data-bs-theme="dark"] .alert-warning {
   color: var(--bs-secondary-color) !important;
   border-top-color: var(--bs-border-color) !important;
 }
+.bg-baby-blue {
+  background-color: #b3d9ff !important;
+}
+html[data-bs-theme="light"][data-layout="light-azul"] .navbar-light.bg-baby-blue {
+  border-bottom: 1px solid #cfe3ff !important;
+}
+.navbar-light.bg-baby-blue .navbar-brand,
+.navbar-light.bg-baby-blue .nav-link,
+.navbar-light.bg-baby-blue .navbar-text {
+  color: #0f172a !important;
+}

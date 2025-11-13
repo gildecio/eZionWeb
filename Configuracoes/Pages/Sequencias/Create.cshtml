@@ -1,0 +1,42 @@
+@page
+@model eZionWeb.Configuracoes.Pages.Sequencias.CreateModel
+@{
+    ViewData["Title"] = "Nova Sequência";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-plus-lg me-2"></i>Nova Sequência</h2>
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="documento">Documento</label>
+                <select id="documento" class="form-select" asp-for="Documento">
+                    <option value="Ajuste">Ajuste</option>
+                    <option value="Requisicao">Requisição</option>
+                    <option value="Devolucao">Devolução</option>
+                    <option value="Transferencia">Transferência</option>
+                </select>
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="serie">Série</label>
+                <input id="serie" class="form-control" asp-for="Serie" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="tipo">Tipo</label>
+                <select id="tipo" class="form-select" asp-for="Tipo">
+                    <option value="Anual">Anual</option>
+                    <option value="Continua">Contínua</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label" for="inicio">Iniciar em (opcional)</label>
+                <input id="inicio" type="number" min="1" class="form-control" asp-for="IniciarEm" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a class="btn btn-secondary ms-2" asp-page="Index">Cancelar</a>
+    </form>
+</div>

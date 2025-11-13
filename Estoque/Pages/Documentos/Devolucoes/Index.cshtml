@@ -43,14 +43,13 @@
         </div>
     </form>
     <div class="table-responsive">
-        <table class="table table-dark table-striped align-middle">
+@{ var tableClass = (ViewContext.HttpContext.Request.Cookies["layout"] ?? "dark-purpura").StartsWith("light-") ? "table table-striped align-middle" : "table table-dark table-striped align-middle"; }
+        <table class="@tableClass">
             <thead>
                 <tr>
                     <th>Data</th>
-                    <th>Produto</th>
+                    <th>Número</th>
                     <th>Destino</th>
-                    <th class="text-end">Qtd</th>
-                    <th>Unidade</th>
                     <th>Obs</th>
                     <th>Status</th>
                     <th class="text-end">Ações</th>
@@ -59,12 +58,10 @@
             <tbody>
             @foreach (var d in Model.Itens)
             {
-                <tr>
+                <tr class="doc-row" data-id="@d.Id">
                     <td>@d.Data.ToLocalTime().ToString("dd/MM/yyyy")</td>
-                    <td>@d.ProdutoNome</td>
+                    <td>@d.NumeroDisplay</td>
                     <td>@d.DestinoNome</td>
-                    <td class="text-end">@d.Quantidade</td>
-                    <td>@d.UnidadeSigla</td>
                     <td>@d.Observacao</td>
                     <td>
                         @(d.Status == eZionWeb.Estoque.Models.DocumentoStatus.Rascunho ? "Rascunho" : d.Status == eZionWeb.Estoque.Models.DocumentoStatus.Efetivado ? "Efetivado" : d.Status == eZionWeb.Estoque.Models.DocumentoStatus.Estornado ? "Estornado" : "Cancelado")
@@ -72,17 +69,41 @@
                     <td class="text-end">
                         @if (d.Status == eZionWeb.Estoque.Models.DocumentoStatus.Rascunho)
                         {
-                            <a class="btn btn-sm btn-outline-light" asp-page="Edit" asp-route-id="@d.Id"><i class="bi bi-pencil"></i></a>
+                            <a class="btn btn-sm btn-outline-light" asp-page="View" asp-route-id="@d.Id"><i class="bi bi-eye"></i></a>
                             <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@d.Id"><i class="bi bi-trash"></i></a>
-                            <form method="post" asp-page-handler="Efetivar" asp-route-id="@d.Id" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-success"><i class="bi bi-check2-circle"></i></button>
-                            </form>
                         }
                         else if (d.Status == eZionWeb.Estoque.Models.DocumentoStatus.Efetivado)
                         {
+                            <a class="btn btn-sm btn-outline-light" asp-page="View" asp-route-id="@d.Id"><i class="bi bi-eye"></i></a>
                             <form method="post" asp-page-handler="Estornar" asp-route-id="@d.Id" class="d-inline">
-                                <button type="submit" class="btn btn-sm btn-outline-warning"><i class="bi bi-arrow-counterclockwise"></i></button>
+                                <button type="submit" class="btn btn-sm btn-outline-warning" onclick="return confirm('Confirmar estorno?');"><i class="bi bi-arrow-counterclockwise"></i></button>
                             </form>
+                        }
+                    </td>
+                </tr>
+                <tr class="details-row" id="details-@d.Id" style="display:none">
+                    <td colspan="7">
+                        @if (Model.ItensPorDocumento.ContainsKey(d.Id))
+                        {
+                            <table class="table table-dark table-sm mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th class="text-end">Qtd</th>
+                                        <th>Unidade</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var it in Model.ItensPorDocumento[d.Id])
+                                {
+                                    <tr>
+                                        <td>@it.ProdutoNome</td>
+                                        <td class="text-end">@it.Quantidade</td>
+                                        <td>@it.UnidadeSigla</td>
+                                    </tr>
+                                }
+                                </tbody>
+                            </table>
                         }
                     </td>
                 </tr>
@@ -91,3 +112,25 @@
         </table>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded',function(){
+  var openId=null;
+  document.querySelectorAll('table tbody tr.doc-row').forEach(function(row){
+    row.addEventListener('click',function(e){
+      if(e.target.closest('a,button,form')) return;
+      var id=row.getAttribute('data-id');
+      if(openId && openId!==id){
+        var prev=document.getElementById('details-'+openId);
+        if(prev) prev.style.display='none';
+      }
+      var det=document.getElementById('details-'+id);
+      if(det){
+        var visible=det.style.display!=='none';
+        det.style.display=visible?'none':'table-row';
+        openId=visible?null:id;
+      }
+    });
+  });
+});
+</script>

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace eZionWeb.Pages;
+namespace eZionWeb.Configuracoes.Pages;
 
 public class SettingsModel : PageModel
 {
@@ -31,6 +31,6 @@ public class SettingsModel : PageModel
             IsEssential = true,
             SameSite = SameSiteMode.Lax
         });
-        return RedirectToPage("/Pages/Settings");
+        return Redirect("/Configuracoes/Settings");
     }
 }

@@ -1,6 +1,8 @@
 using eZionWeb.Estoque.Models;
 using eZionWeb.Estoque.Services;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using eZionWeb.Configuracoes.Services;
+using eZionWeb.Configuracoes.Models;
 
 namespace eZionWeb.Estoque.Pages.Movimentos;
 
@@ -9,6 +11,8 @@ public class IndexModel : PageModel
     private readonly IMovimentoRepository _repo;
     private readonly IProdutoRepository _produtos;
     private readonly ILocalEstoqueRepository _locais;
+    private readonly IDocumentoService _docs;
+    private readonly ISequenciaRepository _seqs;
 
     public List<Linha> Itens { get; set; } = new();
     public List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> Produtos { get; set; } = new();
@@ -26,11 +30,13 @@ public class IndexModel : PageModel
     [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)]
     public TipoMovimento? Tipo { get; set; }
 
-    public IndexModel(IMovimentoRepository repo, IProdutoRepository produtos, ILocalEstoqueRepository locais)
+    public IndexModel(IMovimentoRepository repo, IProdutoRepository produtos, ILocalEstoqueRepository locais, IDocumentoService docs, ISequenciaRepository seqs)
     {
         _repo = repo;
         _produtos = produtos;
         _locais = locais;
+        _docs = docs;
+        _seqs = seqs;
     }
 
     public void OnGet()
@@ -56,13 +62,51 @@ public class IndexModel : PageModel
         if (De.HasValue) query = query.Where(m => m.Data >= De.Value);
         if (Ate.HasValue) query = query.Where(m => m.Data <= Ate.Value);
 
+        var allDocs = _docs.GetAll().ToList();
+        var docTipos = allDocs.ToDictionary(d => d.Id, d => d switch
+        {
+            AjusteEstoque => "Ajuste",
+            RequisicaoEstoque => "Requisição",
+            DevolucaoEstoque => "Devolução",
+            TransferenciaEstoque => "Transferência",
+            _ => ""
+        });
+
+        var docNumeros = new Dictionary<int, string>();
+        foreach (var d in allDocs)
+        {
+            var tipoDocKey = d switch
+            {
+                AjusteEstoque => "Ajuste",
+                RequisicaoEstoque => "Requisicao",
+                DevolucaoEstoque => "Devolucao",
+                TransferenciaEstoque => "Transferencia",
+                _ => string.Empty
+            };
+            var seq = !string.IsNullOrEmpty(tipoDocKey) ? _seqs.GetByDocSerie(tipoDocKey, d.Serie) : null;
+            var display = seq != null && seq.Tipo == TipoSequencia.Anual
+                ? ($"{d.Numero}/{d.Serie}")
+                : ($"{d.Serie}{d.Numero}");
+            docNumeros[d.Id] = display;
+        }
+
         Itens = query.Select(m => new Linha
         {
             Data = m.Data,
             ProdutoNome = prods.TryGetValue(m.ProdutoId, out var pn) ? pn : m.ProdutoId.ToString(),
             TipoTexto = TipoToText(m.Tipo),
-            OrigemNome = m.LocalOrigemId.HasValue && locs.TryGetValue(m.LocalOrigemId.Value, out var on) ? on : string.Empty,
-            DestinoNome = m.LocalDestinoId.HasValue && locs.TryGetValue(m.LocalDestinoId.Value, out var dn) ? dn : string.Empty,
+            LocalNome = m.Tipo == TipoMovimento.Transferencia
+                ? string.Join(" → ",
+                    new[]
+                    {
+                        m.LocalOrigemId.HasValue && locs.TryGetValue(m.LocalOrigemId.Value, out var on) ? on : null,
+                        m.LocalDestinoId.HasValue && locs.TryGetValue(m.LocalDestinoId.Value, out var dn) ? dn : null
+                    }.Where(x => !string.IsNullOrEmpty(x)))
+                : m.Tipo == TipoMovimento.Entrada
+                    ? (m.LocalDestinoId.HasValue && locs.TryGetValue(m.LocalDestinoId.Value, out var ld) ? ld : string.Empty)
+                    : (m.LocalOrigemId.HasValue && locs.TryGetValue(m.LocalOrigemId.Value, out var lo) ? lo : string.Empty),
+            DocumentoTipo = docTipos.TryGetValue(m.DocumentoId, out var dt) ? dt : string.Empty,
+            DocumentoNumero = docNumeros.TryGetValue(m.DocumentoId, out var dnFmt) ? dnFmt : string.Empty,
             Quantidade = m.Quantidade
         }).Take(500).ToList();
     }
@@ -72,8 +116,10 @@ public class IndexModel : PageModel
         public DateTime Data { get; set; }
         public string ProdutoNome { get; set; } = string.Empty;
         public string TipoTexto { get; set; } = string.Empty;
-        public string OrigemNome { get; set; } = string.Empty;
-        public string DestinoNome { get; set; } = string.Empty;
+        public string LocalNome { get; set; } = string.Empty;
+        public string DocumentoTipo { get; set; } = string.Empty;
+        public string DocumentoNumero { get; set; } = string.Empty;
+        public string DocumentoSerie { get; set; } = string.Empty;
         public decimal Quantidade { get; set; }
     }
 

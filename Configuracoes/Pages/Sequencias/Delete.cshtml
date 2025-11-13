@@ -1,0 +1,15 @@
+@page "{id:int}"
+@model eZionWeb.Configuracoes.Pages.Sequencias.DeleteModel
+@{
+    ViewData["Title"] = "Excluir Sequência";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-trash me-2"></i>Excluir Sequência</h2>
+    <p>Confirma a exclusão da sequência <strong>#@Model.Item?.Id</strong> (@Model.Item?.Documento / @Model.Item?.Serie)?</p>
+    <form method="post">
+        <input type="hidden" asp-for="Item!.Id" />
+        <button type="submit" class="btn btn-danger">Excluir</button>
+        <a class="btn btn-secondary ms-2" asp-page="Index">Cancelar</a>
+    </form>
+</div>

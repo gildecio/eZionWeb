@@ -11,12 +11,14 @@ public enum DocumentoStatus
 public abstract class DocumentoBase
 {
     public int Id { get; set; }
-    public DateTime Data { get; set; } = DateTime.UtcNow;
+    public DateTime Data { get; set; } = DateTime.UtcNow.Date;
     public string Observacao { get; set; } = string.Empty;
     public int? MovimentoId { get; set; }
     public List<int> MovimentoIds { get; set; } = new();
     public DocumentoStatus Status { get; set; } = DocumentoStatus.Rascunho;
     public DateTime? EfetivadoEm { get; set; }
+    public string Serie { get; set; } = string.Empty;
+    public int Numero { get; set; }
 }
 
 public class AjusteEstoque : DocumentoBase

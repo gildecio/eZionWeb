@@ -16,6 +16,7 @@ builder.Services.AddSingleton<eZionWeb.Estoque.Services.ILocalEstoqueRepository,
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IMovimentoRepository, eZionWeb.Estoque.Services.MovimentoRepository>();
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IUnidadeRepository, eZionWeb.Estoque.Services.UnidadeRepository>();
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IConversaoRepository>(sp => (eZionWeb.Estoque.Services.UnidadeRepository)sp.GetRequiredService<eZionWeb.Estoque.Services.IUnidadeRepository>());
+builder.Services.AddSingleton<eZionWeb.Configuracoes.Services.ISequenciaRepository, eZionWeb.Configuracoes.Services.SequenciaRepository>();
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IDocumentoService, eZionWeb.Estoque.Services.DocumentoService>();
 
 builder.Services.AddRazorPages(options =>
@@ -77,6 +78,7 @@ using (var scope = app.Services.CreateScope())
     var locais = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.ILocalEstoqueRepository>();
     var unidades = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IUnidadeRepository>();
     var convs = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IConversaoRepository>();
+    var seqs = scope.ServiceProvider.GetRequiredService<eZionWeb.Configuracoes.Services.ISequenciaRepository>();
     if (!grupos.GetAll().Any())
     {
         var gInfo = grupos.Add(new eZionWeb.Estoque.Models.Grupo { Nome = "Informática" });
@@ -114,6 +116,188 @@ using (var scope = app.Services.CreateScope())
         var g = unidades.Add(new eZionWeb.Estoque.Models.UnidadeMedida { Sigla = "G", Nome = "Grama" });
         convs.Add(new eZionWeb.Estoque.Models.ConversaoUnidade { DeUnidadeId = g.Id, ParaUnidadeId = kg.Id, Fator = 0.001m });
         convs.Add(new eZionWeb.Estoque.Models.ConversaoUnidade { DeUnidadeId = kg.Id, ParaUnidadeId = g.Id, Fator = 1000m });
+    }
+
+    if (!seqs.GetAll().Any())
+    {
+        seqs.Add(new eZionWeb.Configuracoes.Models.Sequencia { Documento = "Ajuste", Serie = "0", Tipo = eZionWeb.Configuracoes.Models.TipoSequencia.Anual, Atual = 0 });
+        seqs.Add(new eZionWeb.Configuracoes.Models.Sequencia { Documento = "Requisicao", Serie = "0", Tipo = eZionWeb.Configuracoes.Models.TipoSequencia.Anual, Atual = 0 });
+        seqs.Add(new eZionWeb.Configuracoes.Models.Sequencia { Documento = "Devolucao", Serie = "0", Tipo = eZionWeb.Configuracoes.Models.TipoSequencia.Anual, Atual = 0 });
+        seqs.Add(new eZionWeb.Configuracoes.Models.Sequencia { Documento = "Transferencia", Serie = "0", Tipo = eZionWeb.Configuracoes.Models.TipoSequencia.Anual, Atual = 0 });
+    }
+
+    var docsSvc = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IDocumentoService>();
+    var movRepo = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IMovimentoRepository>();
+    if (!movRepo.GetAll().Any())
+    {
+        var prodsAll = repo.GetAll().ToList();
+        var locsAll = locais.GetAll().ToList();
+        var almox = locsAll.FirstOrDefault(x => x.Nome.Contains("Almoxarifado")) ?? locsAll.First();
+        var deposito = locsAll.FirstOrDefault(x => x.Nome.Contains("Depósito")) ?? (locsAll.Count > 1 ? locsAll[1] : almox);
+        var p1 = prodsAll.ElementAtOrDefault(0);
+        var p2 = prodsAll.ElementAtOrDefault(1);
+        if (p1 != null && p2 != null)
+        {
+        // saldo inicial
+        docsSvc.AddAjuste(new eZionWeb.Estoque.Models.AjusteEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-14).Date,
+            LocalId = almox.Id,
+            Entrada = true,
+            Observacao = "Saldo inicial",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 50 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 40 }
+            }
+        });
+
+        // Ajustes (3 docs, >=2 itens)
+        docsSvc.AddAjuste(new eZionWeb.Estoque.Models.AjusteEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-10).Date,
+            LocalId = almox.Id,
+            Entrada = true,
+            Observacao = "Entrada complementar",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 10 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 8 }
+            }
+        });
+        docsSvc.AddAjuste(new eZionWeb.Estoque.Models.AjusteEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-8).Date,
+            LocalId = almox.Id,
+            Entrada = false,
+            Observacao = "Ajuste de saída",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 5 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 4 }
+            }
+        });
+        docsSvc.AddAjuste(new eZionWeb.Estoque.Models.AjusteEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-6).Date,
+            LocalId = almox.Id,
+            Entrada = true,
+            Observacao = "Reposição",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 7 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 6 }
+            }
+        });
+
+        // Requisições (3 docs, >=2 itens)
+        docsSvc.AddRequisicao(new eZionWeb.Estoque.Models.RequisicaoEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-5).Date,
+            LocalOrigemId = almox.Id,
+            Observacao = "Consumo operação A",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 6 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 5 }
+            }
+        });
+        docsSvc.AddRequisicao(new eZionWeb.Estoque.Models.RequisicaoEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-3).Date,
+            LocalOrigemId = almox.Id,
+            Observacao = "Consumo operação B",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 4 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 3 }
+            }
+        });
+        docsSvc.AddRequisicao(new eZionWeb.Estoque.Models.RequisicaoEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-2).Date,
+            LocalOrigemId = almox.Id,
+            Observacao = "Consumo operação C",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 3 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 2 }
+            }
+        });
+
+        // Devoluções (3 docs, >=2 itens)
+        docsSvc.AddDevolucao(new eZionWeb.Estoque.Models.DevolucaoEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-4).Date,
+            LocalDestinoId = almox.Id,
+            Observacao = "Retorno materiais X",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 2 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 1 }
+            }
+        });
+        docsSvc.AddDevolucao(new eZionWeb.Estoque.Models.DevolucaoEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-2).Date,
+            LocalDestinoId = almox.Id,
+            Observacao = "Retorno materiais Y",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 1 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 1 }
+            }
+        });
+        docsSvc.AddDevolucao(new eZionWeb.Estoque.Models.DevolucaoEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-1).Date,
+            LocalDestinoId = almox.Id,
+            Observacao = "Retorno materiais Z",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 2 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 2 }
+            }
+        });
+
+        // Transferências (3 docs, >=2 itens)
+        docsSvc.AddTransferencia(new eZionWeb.Estoque.Models.TransferenciaEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-7).Date,
+            LocalOrigemId = almox.Id,
+            LocalDestinoId = deposito.Id,
+            Observacao = "Envio para depósito",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 5 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 4 }
+            }
+        });
+        docsSvc.AddTransferencia(new eZionWeb.Estoque.Models.TransferenciaEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-5).Date,
+            LocalOrigemId = almox.Id,
+            LocalDestinoId = deposito.Id,
+            Observacao = "Envio complementar",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 3 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 3 }
+            }
+        });
+        docsSvc.AddTransferencia(new eZionWeb.Estoque.Models.TransferenciaEstoque
+        {
+            Data = DateTime.UtcNow.AddDays(-3).Date,
+            LocalOrigemId = deposito.Id,
+            LocalDestinoId = almox.Id,
+            Observacao = "Retorno parcial",
+            Itens = new List<eZionWeb.Estoque.Models.DocumentoItem>
+            {
+                new() { ProdutoId = p1.Id, UnidadeId = p1.UnidadeId, Quantidade = 2 },
+                new() { ProdutoId = p2.Id, UnidadeId = p2.UnidadeId, Quantidade = 2 }
+            }
+        });
+        }
     }
 }
 

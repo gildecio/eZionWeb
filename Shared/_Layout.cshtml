@@ -15,7 +15,8 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
+        @{ var layoutName = layout; var isLightAzul = layoutName == "light-azul"; var themeIsLight = theme == "light"; }
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm @(themeIsLight ? "navbar-light" : "navbar-dark") @(isLightAzul ? "bg-baby-blue" : "bg-dark") border-bottom box-shadow mb-3">
             <div class="container">
                 <a class="navbar-brand" href="/">eZionWeb</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -96,6 +97,49 @@
                                 </li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" href="#" id="configDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear me-1"></i>Configurações
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="configDropdown">
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#">
+                                        <i class="bi bi-palette me-1"></i>Layout
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="/Configuracoes/Settings">
+                                                <i class="bi bi-gear me-1"></i>Temas
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#">
+                                        <i class="bi bi-list-ol me-1"></i>Sequências
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="/Configuracoes/Sequencias">
+                                                <i class="bi bi-list-ol me-1"></i>Gerenciar Sequências
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu">
+                                    <a class="dropdown-item dropdown-toggle" href="#">
+                                        <i class="bi bi-sliders2 me-1"></i>Definições
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="/Configuracoes/Definicoes">
+                                                <i class="bi bi-sliders2 me-1"></i>Preferências
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
                         <li class="nav-item dropdown">
@@ -106,7 +150,7 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="/Settings">
+                                    <a class="dropdown-item" href="/Configuracoes">
                                         <i class="bi bi-gear me-1"></i>Configurações
                                     </a>
                                 </li>

@@ -1,0 +1,42 @@
+@page "{id:int}"
+@model eZionWeb.Configuracoes.Pages.Sequencias.EditModel
+@{
+    ViewData["Title"] = "Editar Sequência";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-pencil me-2"></i>Editar Sequência</h2>
+    <form method="post">
+        <div asp-validation-summary="All" class="text-danger"></div>
+        <input type="hidden" asp-for="Item!.Id" />
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Documento</label>
+                <input class="form-control" asp-for="Item!.Documento" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Série</label>
+                <input class="form-control" asp-for="Item!.Serie" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Tipo</label>
+                <select class="form-select" asp-for="Tipo">
+                    <option value="Anual">Anual</option>
+                    <option value="Continua">Contínua</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Atual</label>
+                <input type="number" class="form-control" asp-for="Item!.Atual" />
+            </div>
+            <div class="col-md-4 mb-3">
+                <label class="form-label">Iniciar em (opcional)</label>
+                <input type="number" min="1" class="form-control" asp-for="IniciarEm" />
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a class="btn btn-secondary ms-2" asp-page="Index">Cancelar</a>
+    </form>
+</div>

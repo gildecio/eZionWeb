@@ -1,0 +1,63 @@
+@page
+@model eZionWeb.Estoque.Pages.Documentos.Transferencias.CreateModel
+@{
+    ViewData["Title"] = "Nova Transferência";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-plus-lg me-2"></i>Nova Transferência de Estoque</h2>
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label" for="produto">Produto</label>
+            <select id="produto" class="form-select" asp-for="ProdutoId">
+                <option value="">Selecione...</option>
+                @foreach (var p in Model.Produtos)
+                {
+                    <option value="@p.Value">@p.Text</option>
+                }
+            </select>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="origem">Local de Origem</label>
+                <select id="origem" class="form-select" asp-for="LocalOrigemId">
+                    <option value="">Selecione...</option>
+                    @foreach (var l in Model.Locais)
+                    {
+                        <option value="@l.Value">@l.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="destino">Local de Destino</label>
+                <select id="destino" class="form-select" asp-for="LocalDestinoId">
+                    <option value="">Selecione...</option>
+                    @foreach (var l in Model.Locais)
+                    {
+                        <option value="@l.Value">@l.Text</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="unidade">Unidade</label>
+            <select id="unidade" class="form-select" asp-for="UnidadeId">
+                <option value="">Selecione...</option>
+                @foreach (var u in Model.Unidades)
+                {
+                    <option value="@u.Value">@u.Text</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Quantidade"></label>
+            <input class="form-control" asp-for="Quantidade" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Observacao"></label>
+            <input class="form-control" asp-for="Observacao" />
+        </div>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+        <a class="btn btn-secondary ms-2" asp-page="Index">Cancelar</a>
+    </form>
+</div>

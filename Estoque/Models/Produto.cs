@@ -19,4 +19,5 @@ public class Produto
     public TipoProduto Tipo { get; set; } = TipoProduto.MateriaPrima;
     public string Codigo { get; set; } = string.Empty;
     public string CodigoAnterior { get; set; } = string.Empty;
+    public int UnidadeId { get; set; }
 }

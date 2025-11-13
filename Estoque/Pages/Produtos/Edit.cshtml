@@ -40,6 +40,15 @@
                 }
             </select>
         </div>
+        <div class="mb-3">
+            <label class="form-label" for="unidade">Unidade de Medida</label>
+            <select id="unidade" class="form-select" asp-for="Item.UnidadeId">
+                @foreach (var u in Model.Unidades)
+                {
+                    <option value="@u.Value" selected="@(Model.Item.UnidadeId.ToString() == u.Value)">@u.Text</option>
+                }
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salvar</button>
         <a class="btn btn-secondary ms-1" asp-page="Index">Cancelar</a>
     </form>

@@ -1,0 +1,15 @@
+@page
+@model eZionWeb.Pages.SettingsModel
+@{
+    ViewData["Title"] = "Configurações";
+}
+<div class="container">
+    <h1 class="mb-4">Configurações</h1>
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label" for="SelectedLayout">Layout</label>
+            <select class="form-select" id="SelectedLayout" name="SelectedLayout" asp-for="SelectedLayout" asp-items="Model.Layouts"></select>
+        </div>
+        <button type="submit" class="btn btn-primary">Aplicar</button>
+    </form>
+</div>

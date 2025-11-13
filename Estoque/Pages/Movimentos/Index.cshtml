@@ -1,0 +1,82 @@
+@page
+@model eZionWeb.Estoque.Pages.Movimentos.IndexModel
+@{
+    ViewData["Title"] = "Movimentações";
+}
+
+<div class="container">
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <h2 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>Movimentações</h2>
+        <a class="btn btn-primary" asp-page="Create"><i class="bi bi-plus-lg me-1"></i>Novo</a>
+    </div>
+    <form method="get" class="row g-3 mb-3">
+        <div class="col-md-2">
+            <label class="form-label" for="de">De</label>
+            <input id="de" type="date" class="form-control" name="De" value="@Model.De?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="ate">Até</label>
+            <input id="ate" type="date" class="form-control" name="Ate" value="@Model.Ate?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="produto">Produto</label>
+            <select id="produto" class="form-select" name="ProdutoId">
+                <option value="">Todos</option>
+                @foreach (var p in Model.Produtos)
+                {
+                    <option value="@p.Value" selected="@(Model.ProdutoId.HasValue && Model.ProdutoId.Value.ToString() == p.Value)">@p.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="local">Local</label>
+            <select id="local" class="form-select" name="LocalId">
+                <option value="">Todos</option>
+                @foreach (var l in Model.Locais)
+                {
+                    <option value="@l.Value" selected="@(Model.LocalId.HasValue && Model.LocalId.Value.ToString() == l.Value)">@l.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="tipo">Tipo</label>
+            <select id="tipo" class="form-select" name="Tipo">
+                <option value="">Todos</option>
+                @foreach (var t in Model.Tipos)
+                {
+                    <option value="@t.Value" selected="@(Model.Tipo.HasValue && ((int)Model.Tipo.Value).ToString() == t.Value)">@t.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-outline-light"><i class="bi bi-filter me-1"></i>Filtrar</button>
+        </div>
+    </form>
+    <div class="table-responsive">
+        <table class="table table-dark table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Produto</th>
+                    <th>Tipo</th>
+                    <th>Origem</th>
+                    <th>Destino</th>
+                    <th class="text-end">Qtd</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var m in Model.Itens)
+            {
+                <tr>
+                    <td>@m.Data.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@m.ProdutoNome</td>
+                    <td>@m.TipoTexto</td>
+                    <td>@m.OrigemNome</td>
+                    <td>@m.DestinoNome</td>
+                    <td class="text-end">@m.Quantidade</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>

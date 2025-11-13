@@ -1,0 +1,22 @@
+@page "{id:int}"
+@model eZionWeb.Estoque.Pages.Locais.EditModel
+@{
+    ViewData["Title"] = "Editar Local de Estoque";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-geo-alt me-2"></i>Editar Local de Estoque</h2>
+    <form method="post">
+        <input type="hidden" asp-for="Item.Id" />
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.Nome"></label>
+            <input class="form-control" asp-for="Item.Nome" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Item.Codigo"></label>
+            <input class="form-control" asp-for="Item.Codigo" />
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salvar</button>
+        <a class="btn btn-secondary ms-1" asp-page="Index">Cancelar</a>
+    </form>
+</div>

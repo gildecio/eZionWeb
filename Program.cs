@@ -12,6 +12,11 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
 
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IProdutoRepository, eZionWeb.Estoque.Services.ProdutoRepository>();
 builder.Services.AddSingleton<eZionWeb.Estoque.Services.IGrupoRepository, eZionWeb.Estoque.Services.GrupoRepository>();
+builder.Services.AddSingleton<eZionWeb.Estoque.Services.ILocalEstoqueRepository, eZionWeb.Estoque.Services.LocalEstoqueRepository>();
+builder.Services.AddSingleton<eZionWeb.Estoque.Services.IMovimentoRepository, eZionWeb.Estoque.Services.MovimentoRepository>();
+builder.Services.AddSingleton<eZionWeb.Estoque.Services.IUnidadeRepository, eZionWeb.Estoque.Services.UnidadeRepository>();
+builder.Services.AddSingleton<eZionWeb.Estoque.Services.IConversaoRepository>(sp => (eZionWeb.Estoque.Services.UnidadeRepository)sp.GetRequiredService<eZionWeb.Estoque.Services.IUnidadeRepository>());
+builder.Services.AddSingleton<eZionWeb.Estoque.Services.IDocumentoService, eZionWeb.Estoque.Services.DocumentoService>();
 
 builder.Services.AddRazorPages(options =>
 {
@@ -24,6 +29,7 @@ builder.Services.AddRazorPages(options =>
     options.Conventions.AddPageRoute("/Pages/Login", "Login");
     options.Conventions.AddPageRoute("/Pages/Privacy", "Privacy");
     options.Conventions.AddPageRoute("/Pages/Logout", "Logout");
+    options.Conventions.AddPageRoute("/Pages/Settings", "Settings");
     options.Conventions.AddFolderRouteModelConvention("/Estoque/Pages", model =>
     {
         foreach (var selector in model.Selectors.ToList())
@@ -68,6 +74,9 @@ using (var scope = app.Services.CreateScope())
 {
     var repo = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IProdutoRepository>();
     var grupos = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IGrupoRepository>();
+    var locais = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.ILocalEstoqueRepository>();
+    var unidades = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IUnidadeRepository>();
+    var convs = scope.ServiceProvider.GetRequiredService<eZionWeb.Estoque.Services.IConversaoRepository>();
     if (!grupos.GetAll().Any())
     {
         var gInfo = grupos.Add(new eZionWeb.Estoque.Models.Grupo { Nome = "Informática" });
@@ -90,6 +99,21 @@ using (var scope = app.Services.CreateScope())
             repo.Add(new eZionWeb.Estoque.Models.Produto { Nome = "Mouse Gamer", GrupoId = leafMouses.Id });
         if (leafMonitores != null)
             repo.Add(new eZionWeb.Estoque.Models.Produto { Nome = "Monitor 24\"", GrupoId = leafMonitores.Id });
+    }
+
+    if (!locais.GetAll().Any())
+    {
+        locais.Add(new eZionWeb.Estoque.Models.LocalEstoque { Nome = "Almoxarifado Principal", Codigo = "ALM-001" });
+        locais.Add(new eZionWeb.Estoque.Models.LocalEstoque { Nome = "Depósito Externo", Codigo = "DEP-EXT" });
+    }
+
+    if (!unidades.GetAll().Any())
+    {
+        var un = unidades.Add(new eZionWeb.Estoque.Models.UnidadeMedida { Sigla = "UN", Nome = "Unidade" });
+        var kg = unidades.Add(new eZionWeb.Estoque.Models.UnidadeMedida { Sigla = "KG", Nome = "Quilograma" });
+        var g = unidades.Add(new eZionWeb.Estoque.Models.UnidadeMedida { Sigla = "G", Nome = "Grama" });
+        convs.Add(new eZionWeb.Estoque.Models.ConversaoUnidade { DeUnidadeId = g.Id, ParaUnidadeId = kg.Id, Fator = 0.001m });
+        convs.Add(new eZionWeb.Estoque.Models.ConversaoUnidade { DeUnidadeId = kg.Id, ParaUnidadeId = g.Id, Fator = 1000m });
     }
 }
 

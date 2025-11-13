@@ -10,16 +10,19 @@ public class CreateModel : PageModel
 {
     private readonly IProdutoRepository _repo;
     private readonly IGrupoRepository _grupos;
+    private readonly IUnidadeRepository _unidades;
 
     [BindProperty]
     public Produto Item { get; set; } = new();
     public List<SelectListItem> Analiticos { get; set; } = new();
     public List<SelectListItem> Tipos { get; set; } = new();
+    public List<SelectListItem> Unidades { get; set; } = new();
 
-    public CreateModel(IProdutoRepository repo, IGrupoRepository grupos)
+    public CreateModel(IProdutoRepository repo, IGrupoRepository grupos, IUnidadeRepository unidades)
     {
         _repo = repo;
         _grupos = grupos;
+        _unidades = unidades;
     }
 
     public void OnGet()
@@ -36,6 +39,8 @@ public class CreateModel : PageModel
             new SelectListItem { Value = ((int)TipoProduto.Imobilizado).ToString(), Text = "Imobilizado" },
             new SelectListItem { Value = ((int)TipoProduto.Outros).ToString(), Text = "Outros" }
         };
+        Unidades = _unidades.GetAll().OrderBy(u => u.Nome)
+            .Select(u => new SelectListItem { Value = u.Id.ToString(), Text = u.Nome + " (" + u.Sigla + ")" }).ToList();
     }
 
     public IActionResult OnPost()

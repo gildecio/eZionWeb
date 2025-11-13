@@ -1,0 +1,63 @@
+@page "{id:int}"
+@model eZionWeb.Estoque.Pages.Documentos.Ajustes.EditModel
+@{
+    ViewData["Title"] = "Editar Ajuste";
+}
+
+<div class="container">
+    <h2 class="mb-3"><i class="bi bi-pencil me-2"></i>Editar Ajuste de Estoque</h2>
+    <form method="post">
+        <input type="hidden" asp-for="Id" />
+        <div class="mb-3">
+            <label class="form-label" for="produto">Produto</label>
+            <select id="produto" class="form-select" asp-for="ProdutoId">
+                <option value="">Selecione...</option>
+                @foreach (var p in Model.Produtos)
+                {
+                    <option value="@p.Value" selected="@(Model.ProdutoId.ToString() == p.Value)">@p.Text</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="local">Local</label>
+            <select id="local" class="form-select" asp-for="LocalId">
+                <option value="">Selecione...</option>
+                @foreach (var l in Model.Locais)
+                {
+                    <option value="@l.Value" selected="@(Model.LocalId.ToString() == l.Value)">@l.Text</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Tipo</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" asp-for="Entrada" value="true" checked="@Model.Entrada" />
+                <label class="form-check-label">Entrada</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" asp-for="Entrada" value="false" checked="@(!Model.Entrada)" />
+                <label class="form-check-label">Saída</label>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="unidade">Unidade</label>
+            <select id="unidade" class="form-select" asp-for="UnidadeId">
+                <option value="">Selecione...</option>
+                @foreach (var u in Model.Unidades)
+                {
+                    <option value="@u.Value" selected="@(Model.UnidadeId.ToString() == u.Value)">@u.Text</option>
+                }
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Quantidade"></label>
+            <input class="form-control" asp-for="Quantidade" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label" asp-for="Observacao"></label>
+            <input class="form-control" asp-for="Observacao" />
+        </div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salvar</button>
+        <a class="btn btn-secondary ms-2" asp-page="Index">Cancelar</a>
+    </form>
+</div>
